@@ -1,12 +1,12 @@
-module GeoJsonFlatten exposing (flatten)
+module GeoJsonFlatten exposing (flatten, flattenFeature, flattenGeometry)
 
-import GeoJson exposing (FeatureObject, GeoJsonObject(..), Geometry(..), Position)
+import GeoJson exposing (FeatureObject, GeoJsonObject(..), Geometry(..))
 import Json.Encode
 
 
 flattenFeatureCollection : List FeatureObject -> GeoJsonObject
-flattenFeatureCollection fc =
-    FeatureCollection fc
+flattenFeatureCollection features =
+    FeatureCollection (List.concatMap flattenFeature features)
 
 
 flattenGeometry : Maybe Geometry -> List (Maybe Geometry)
@@ -37,9 +37,13 @@ flattenGeometry geometry =
             List.map (\l -> Just (LineString l)) p
 
 
-flattenFeature : FeatureObject -> List GeoJsonObject
+
+--- TODO: try to flatten a feature. currently struggling with FeatureObject
+
+
+flattenFeature : FeatureObject -> List FeatureObject
 flattenFeature { geometry, id, properties } =
-    List.map (\geom -> Feature { geometry = geom, id = id, properties = properties })
+    List.map (\geom -> { geometry = geom, id = id, properties = properties })
         (flattenGeometry geometry)
 
 
